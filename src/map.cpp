@@ -1,4 +1,6 @@
 #include <cstdlib>
+
+#include <cstdlib>
 #include <ctime>
 #include "map.h"
 
