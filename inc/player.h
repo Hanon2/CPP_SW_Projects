@@ -36,6 +36,7 @@ using namespace std;
 class Player 
 {
     public:
+        Player();
         Player(int x, int y);
         int getScore() const;
         void takeDamage(int val);

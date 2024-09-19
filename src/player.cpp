@@ -6,6 +6,16 @@
 #include "player.h"
 
 
+Player::Player()
+{
+    health = MAX_HEALTH;
+    hunger = MAX_HUNGER;
+    thirst = MAX_THIRST;
+    x = 0;
+    y = 0;
+    score = 0;
+    
+}
 Player::Player(int x, int y)
 {
     health = MAX_HEALTH;

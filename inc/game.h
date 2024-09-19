@@ -26,6 +26,6 @@ Key Features:
 #include "lands.h"
 #include "map.h"
 
-void runGame(Land* map[MAP_SIZE][MAP_SIZE], Player &p);
+void runGame(Land* map[MAP_SIZE][MAP_SIZE], Player* players, int numPlayers);
 
 #endif
