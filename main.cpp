@@ -1,5 +1,49 @@
 #include <iostream>
 #include <sstream>
+/*
+==========================================
+        Survival Game
+==========================================
+
+Author: Mohamed Abdelmoneim
+Date: 09/18/2024
+
+
+Synopsys: 
+- This is a text-based survival game where the player navigates through different types of lands on a randomly generated map. 
+- The objective of the game is to survive as long as possible while managing health, hunger, and thirst.
+
+
+
+
+Key Features:
+--------------
+1. **Player**:
+   - The player starts at the center of a 10x10 map with maximum health, hunger, and thirst.
+   - Health decreases if hunger or thirst drops to zero. The game ends when the player's health reaches zero.
+   - The player's score increases with each move, representing their progress in the game.
+
+2. **Map**:
+   - The game map is randomly populated with different types of lands that affect the player's stats (health, hunger, and thirst).
+   - The player can move north, east, south, or west. 
+   The map wraps around, meaning if the player moves off one side, they appear on the opposite side.
+
+3. **Lands**:
+   - Each land offers unique challenges or benefits when visited:
+     - **Forest**: Chance of finding food or being attacked by a bear.
+     - **Lake**: Restores thirst by drinking clean water.
+     - **Hospital**: Fully restores health.
+     - **Iced Land**: Decreases health due to cold conditions.
+     - **Farm**: Increases hunger by providing food.
+     - **Camp**: Increases both hunger and thirst.
+     - **Basketball Field**: Decreases thirst due to physical activity.
+     - **Haunted House**: Presents a riddle, math problem, or general knowledge question. 
+        Correct answers maintain health, while incorrect ones decrease it.
+     - **Lives Shop**: Restores health by 1.
+     - **Grocery Store**: Fully restores hunger.
+*/
+
+
 #include <time.h>
 
 using namespace std;
@@ -9,7 +53,15 @@ using namespace std;
 #define MAX_THIRST  (3)
 #define MAP_SIZE   (10)
 
-
+/* This is a class that declares a player in the game.
+* Each method would affect the player parameters such as score, health etc..
+* This class has 6 different variables:
+1- x&y: Represents the current x&y axis position of the player on the map. 
+2- health: Represents the current health of the player. If health is zero, then the player died.
+3- hunger & thirst: Represents the level of hunger and thirst
+   this player is at. If the hunger is zero then the health will be decremented by 1.
+4- score: Represents the score of the player. Each time the player moves to another land on the map score will be incremented by 1.
+*/
 class Player 
 {
     public:
@@ -58,10 +110,12 @@ class Player
     string getStats() const 
     {
         stringstream ss;
+        ss.str(""); // Clear the stringstream
+        ss.clear(); // Clear any error flags
         ss  << "============\n"
-            << "Health: " << health << "\n" 
-            << "Hunger: " << hunger << "\n" 
-            << "Thirst: " << thirst << "\n"
+            << "Health: " << health << endl 
+            << "Hunger: " << hunger << endl 
+            << "Thirst: " << thirst << endl
             << "============\n";
         return ss.str();
     }
@@ -71,9 +125,11 @@ class Player
         return health > 0;
     }
     
-    void increaseThrist(int val)
+    void modifyThirst(int val) //called it modify because there is one land that decreases our thirst
     {
+        thirst+=val;
         if(thirst > MAX_THIRST) thirst = MAX_THIRST;
+        else if (thirst < 0) thirst = 0;
     }
     
     void increaseHunger(int val)
@@ -81,290 +137,366 @@ class Player
         hunger += val;
         if(hunger > MAX_HUNGER) hunger = MAX_HUNGER;
     }
-    
+    void increaseHealth(int val)
+    {
+        health+=val;
+        if (health > MAX_HEALTH) health = MAX_HEALTH;
+    }
     int x, y;
-    int health, hunger, thirst, score;
+    private:
+        int health, hunger, thirst, score;
 
 };
 
-class Land {
+/*This is a base class for different types of lands. 
+* Each land would have two methods that it would inherit from the base class land. 
+* getDescription is used to display to the user what the land does.
+* visit is used to make the land logic run which affects the whole game.
+*/
+class Land 
+{
     public:
-    virtual string getDescription() = 0;
-    virtual string visit(Player& player) = 0;
+        virtual string getDescription() = 0;
+        virtual string visit(Player& p) = 0;
 };
 
-// TODO: Define at least 3 more types of derivded land types
-// TODO: Add some unique effect to each new type
-
-class Forest : public Land {
+class Forest : public Land 
+{
     public:
-    string getDescription(){
-        return "a densely wooded forest.";
-    }
-    
-    string visit(Player& player){
-        int randomNum = rand() % 100;
-        
-        if(randomNum > 74){
-            player.takeDamage(1);
-            return "You are attacked by a bear while foraging for berries.";
-        } else {
-            player.increaseHunger(1);
-            return "You forage for berries in the woods and eat a few.";
+        string getDescription()
+        {
+            return "a densely wooded forest.";
         }
-    }
+        
+        string visit(Player& p)
+        {
+            int randomNum = rand() % 100;
+            
+            if(randomNum > 74)
+            {
+                p.takeDamage(1);
+                return "You were attacked by a bear while foraging for berries.";
+            } 
+            else 
+            {
+                p.increaseHunger(1);
+                return "You forage for berries in the woods and eat a few.";
+            }
+        }
 };
 
-class Lake : public Land {
+class Lake : public Land 
+{
     public:
-    string getDescription(){
-        return "a clear sparkling lake.";
-    }
-    
-    string visit(Player& player){
-        player.increaseThrist(2);
-        return "You visit the lake and drink its clean water";
-    }
+        string getDescription()
+        {
+            return "a clear sparkling lake.";
+        }
+        
+        string visit(Player& p)
+        {
+            p.modifyThirst(2);
+            return "You visit the lake and drink its clean water";
+        }
 };
-class Hospital: public Land {
-    public: string getDescription() {
-        return (" A hospital and it will restore your health when you take the medicine");
-    }
-    string visit(Player & p) {
-        p.health = MAX_HEALTH; // maximize the health
-        return ("Your health is maximized\n"); 
-    }
+class Hospital: public Land 
+{
+    public: 
+        string getDescription() 
+        {
+            return ("a hospital and it will restore your health when you take the medicine");
+        }
+        string visit(Player & p) 
+        {
+            p.increaseHealth(MAX_HEALTH);// maximize the health
+            return ("Your health is maximized"); 
+        }
 
 };
-class IcedLand: public Land {
-    public: string getDescription() {
-        return (" An Iced land and it will decrease your health by 1");
-    }
-    string visit(Player & p) {
-        p.health = p.health-1; // decrement health by 1
-        return "You cold";
-    }
+class IcedLand: public Land 
+{
+    public: 
+        string getDescription() 
+        {
+            return ("an Iced land and it will decrease your health by 1");
+        }
+        string visit(Player & p) 
+        {
+            p.takeDamage(1); // decrement health by 1
+            return "You cold";
+        }
 
 };
 class Farm : public Land{
-    public: string getDescription(){
-        return (" A farm and it will increase your hunger by 1"); 
-        
-    }
-    string visit(Player&p){
-        p.hunger +=1; 
-        return (" Your hunger was increased by 1");
-    }
-};
-class Camp: public Land{
-    public: string getDescription(){
-        return (" A camp and it will increase your health and hunger by 1"); 
-    }
-    string visit(Player &p ){
-        p.hunger+=1; 
-        p.thirst+=1; 
-        return (" Your hunger and thirst were increased by 1"); 
-    }
-};
-class BasketBallField: public Land{
-    public: string getDescription(){
-        return (" A basket ball field which will decrease your thirst by 2"); 
-    }
-    string visit(Player&p){
-        p.thirst-=2; 
-        return (" Your thirst was decreased by 2");
-    }
-};
-class HauntedHouse: public Land {
     public: 
-    stringstream sss;
-    int randomH;
-    string getDescription() {
-        sss.str(""); // Clear the stringstream
-        sss.clear(); // Clear any error flags
-        randomH = (rand() % 100); // This random variable controls the challenge in the haunted house
-
-        if (randomH < 25) { // Math problem
-            sss << "You see a haunted house and in order to survive through here you need to solve the following Maths problem\n";
-            if (randomH < 13) { // 1st question
-                sss << "10 + 20 * 30 + 50 / 70";
-            } else { // 2nd question
-                sss << "100000 - 10"; // Corrected the problem (10^2 * 10^3 - 10)
-            }
-        } else if (randomH < 50) { // Riddle
-            sss << "You see a haunted house and in order to survive through here you need to solve the following riddle (ALL CAPS)\n";
-            if (randomH < 38) { // 1st riddle
-                sss << "What can run but can't walk?";
-            } else { // 2nd riddle
-                sss << "What starts with T, is filled with T, and ends with T?";
-            }
-        } else if (randomH < 75) { // Historical question
-            sss << "You see a haunted house and in order to survive through here you need to answer the following history questions\n";
-            if (randomH < 63) { // 1st question
-                sss << "Who built the pyramids?\n1- Ancient Egyptians\n2- Ancient Romans\n3- Ottomans\n4- Mongols";
-            } else { // 2nd question
-                sss << "What was the name of the Egyptian president in 1973?\n1- Anwar El Sadat\n2- Gamal Abdel Nasser\n3- Hosni Mubarak\n4- Mohamed Naguib";
-            }
-        } else { // General question
-            sss << "You see a haunted house and in order to survive through here you need to answer the following questions (numbers or ALL CAPS)\n";
-            if (randomH < 88) { // 1st question
-                sss << "How many states are in the United States?";
-            } else { // 2nd question
-                sss << "How many continents are there in the world?";
-            }
+        string getDescription()
+        {
+            return ("a farm and it will increase your hunger by 1"); 
+            
         }
-        return sss.str();
-    }
-    string visit(Player & p) {
-        double input = 0; //takes the input for the mathematical questions
+        string visit(Player&p)
+        {
+            p.increaseHunger(1); 
+            return ("Your hunger was increased by 1");
+        }
+};
+class Camp: public Land
+{
+    public: 
+        string getDescription()
+        {
+            return ("a camp and it will increase your health and hunger by 1"); 
+        }
+        string visit(Player &p )
+        {
+            p.increaseHunger(1);
+            p.modifyThirst(1);
+            return ("Your hunger and thirst were increased by 1"); 
+        }
+};
+class BasketBallField: public Land
+{
+    public: 
+        string getDescription()
+        {
+            return ("a basket ball field which will decrease your thirst by 2"); 
+        }
+        string visit(Player&p)
+        {
+            p.modifyThirst(-2); 
+            return ("Your thirst was decreased by 2");
+        }
+};
+class HauntedHouse: public Land 
+{
+    public: 
+        stringstream sss;
+        int randomVarToPickTheQuestion;
+        string getDescription() {
+            sss.str(""); // Clear the stringstream
+            sss.clear(); // Clear any error flags
+            randomVarToPickTheQuestion = (rand() % 100); // This random variable controls the challenge in the haunted house
+    
+            if (randomVarToPickTheQuestion < 25) 
+            { // Math problem
+                sss << "a haunted house and in order to survive through here you need to solve the following Maths problem\n";
+                if (randomVarToPickTheQuestion < 13) 
+                { // 1st question
+                    sss << "10 + 20 * 30 + 50 / 70";
+                } 
+                else 
+                { // 2nd question
+                    sss << "100000 - 10"; // Corrected the problem (10^2 * 10^3 - 10)
+                }
+            } 
+            else if (randomVarToPickTheQuestion < 50) 
+            { // Riddle
+                sss << "a haunted house and in order to survive through here you need to solve the following riddle (ALL CAPS)\n";
+                if (randomVarToPickTheQuestion < 38) 
+                { // 1st riddle
+                    sss << "What can run but can't walk?";
+                } 
+                else 
+                { // 2nd riddle
+                    sss << "What starts with T, is filled with T, and ends with T?";
+                }
+            } 
+            else if (randomVarToPickTheQuestion < 75) 
+            { // Historical question
+                sss << "a haunted house and in order to survive through here you need to answer the following history questions\n";
+                if (randomVarToPickTheQuestion < 63) 
+                { // 1st question
+                    sss << "Who built the pyramids?\n1- Ancient Egyptians\n2- Ancient Romans\n3- Ottomans\n4- Mongols";
+                } 
+                else 
+                { // 2nd question
+                    sss << "What was the name of the Egyptian president in 1973?\n1- Anwar El Sadat\n2- Gamal Abdel Nasser\n3- Hosni Mubarak\n4- Mohamed Naguib";
+                }
+            } 
+            else 
+            { // General question
+                sss << "a haunted house and in order to survive through here you need to answer the following questions (numbers or ALL CAPS)\n";
+                if (randomVarToPickTheQuestion < 88) 
+                { // 1st question
+                    sss << "How many states are in the United States?";
+                } 
+                else 
+                { // 2nd question
+                    sss << "How many continents are there in the world?";
+                }
+            }
+            return sss.str();
+        }
+    string visit(Player & p) 
+    {
+        string input; //takes the input for the mathematical questions
         cout<<"Enter your answer>>";
-        if (randomH < 25) {
-            int count1 = 0;
-            while (count1 < 1) {
-                cin >> input;
-                if (randomH < 13) {
-                    if (input == 610 || input == 611) { // this is the right answer for the first challenge 
-                        return ("That's correct, Great job\n");
-                        ++count1;
-                    } else {
-                        return ("That's incorrect\n your health was decreases by 1");
-                        p.health = p.health-1; //decrement health by 1 if he answeres incorrectly
-                    }
-                } else {
-                    if (input == 0) { // this is the right answer for the first challenge 
-                        return ("that's correct\n Great job\n");
-                        ++count1;
-                    } else {
-                        return ("That's incorrect\n your health was decreases by 1");
-                        p.health = p.health-1;
-                    }
+        cin >> input;
+        if (randomVarToPickTheQuestion < 25) 
+        {
+            if (randomVarToPickTheQuestion < 13) 
+            {
+                if (input == "610" || input == "611") 
+                { // this is the right answer for the first challenge 
+                    return ("That's correct, Great job");
+                } 
+                else 
+                {
+                    p.takeDamage(1);
+                    return ("That's incorrect, your health was decreased by 1");
+                }
+            } 
+            else 
+            {
+                if (input == "0") 
+                {
+                    return ("That's correct, Great job");
+                } 
+                else 
+                {
+                    p.takeDamage(1);
+                    return ("That's incorrect, your health was decreased by 1");
                 }
             }
-        } else if (randomH < 50) { 
-            string input;
-            int count1 = 0;
-            while (count1 < 1) {
-                cin >> input;
-                if (randomH < 38) {
-                    if (input == "RIVER" || input == "THE RIVER") { // This is the right answer
-                        return ("that's correct\n Great job\n");
-                        ++count1; // let him out 
-                    } else { // if he answered incorrectly 
-                        return ("That's incorrect\n your health was decreases by 1");
-                        p.health = p.health-1;// decrement health by 1 
-                    }
-                } else {
-                    if (input == "TEAPOT" || input == "THE TEAPOT") { 
-                        return ("that's correct\n Great job\n");
-                        ++count1;
-                    } else {
-                        return ("That's incorrect\n your health was decreases by 1");
-                        p.health = p.health-1;
-                    }
+            
+        } 
+        else if (randomVarToPickTheQuestion < 50) 
+        { 
+            if (randomVarToPickTheQuestion < 38) 
+            {
+                if (input == "RIVER" || input == "THE RIVER") 
+                { // This is the right answer
+                    return ("That's correct, Great job");
+                } 
+                else 
+                { // if he answered incorrectly 
+                    p.takeDamage(1);// decrement health by 1 
+                    return ("That's incorrect, your health was decreases by 1");
+                }
+            } 
+            else 
+            {
+                if (input == "TEAPOT" || input == "THE TEAPOT") 
+                { 
+                    return ("That's correct, Great job");
+                } 
+                else 
+                {
+                    p.takeDamage(1);;
+                    return ("That's incorrect, your health was decreased by 1");
                 }
             }
-        } else if (randomH < 75) {
-            int input = 0;
-            int count1 = 0;
-            while (count1 < 1) {
-                cin >> input;
-                if (randomH < 63) {
-                    if (input == 1) {
-                        return ("that's correct\n Great job\n");
-                        ++count1; 
-                    } else {
-                        return ("That's incorrect\n your health was decreases by 1");
-                        p.health = p.health-1;
-                    }
-                }
-                if (input == 1) {
-
-                    return ("that's correct\n Great job\n");
-                    ++count1;
-                } else {
-                    return ("That's incorrect\n your health was decreases by 1");
-                   p.health = p.health-1;
+            
+        } 
+        else if (randomVarToPickTheQuestion < 75) 
+        {
+            if (randomVarToPickTheQuestion < 63) 
+            {
+                if (input == "1") 
+                {
+                    return ("That's correct, Great job");
+                } 
+                else 
+                {
+                    p.takeDamage(1);;
+                    return ("That's incorrect, your health was decreased by 1");
                 }
             }
-        } else {
-            string input;
-            int count1 = 0;
-            while (count1 < 1) {
-                cin >> input;
+            if (input == "1") 
+            {
 
-                if (randomH < 88) {
-                    if (input == "50" || input == "FIFTY") {
-
-                        return ("that's correct\n Great job\n");
-                        ++count1;
-                    } else {
-                        return ("That's incorrect\n your health was decreases by 1");
-                        p.health = p.health-1;
-                    }
-                } else {
-                    if (input == "7" || input == "SEVEN") {
-                        return ("that's correct\n Great job\n");
-                        ++count1;
-                    } else {
-                        return ("That's incorrect\n your health was decreases by 1");
-                        p.health = p.health-1;
-                    }
+                return ("That's correct, Great job");
+            } 
+            else 
+            {
+                p.takeDamage(1);;
+                return ("That's incorrect, your health was decreased by 1");
+            }
+            
+        } 
+        else 
+        {
+            if (randomVarToPickTheQuestion < 88) 
+            {
+                if (input == "50" || input == "FIFTY") 
+                {
+                    return ("That's correct, Great job");
+                } 
+                else 
+                {
+                    p.takeDamage(1);
+                    return ("That's incorrect, your health was decreased by 1");
+                }
+            } 
+            else 
+            {
+                if (input == "7" || input == "SEVEN") 
+                {
+                    return ("That's correct, Great job");
+                } 
+                else 
+                {
+                    p.takeDamage(1);;
+                    return ("That's incorrect, your health was decreased by 1");
                 }
             }
         }
-        return ("You visited th Haunted House");
-
     }
 
 };
-class LivesShop: public Land {
-    public: string getDescription() {
-        return (" A lives shop and it will increase your health by 1");
+class LivesShop: public Land 
+{
+    public: string getDescription() 
+    {
+        return ("a lives shop and it will increase your health by 1");
     }
-    string visit(Player & p) {
-        p.health = MAX_HEALTH; // increase lives from the lives shop 
-        return ("Your health is maximized\n"); 
+    string visit(Player & p) 
+    {
+        p.increaseHealth(MAX_HEALTH); 
+        return ("Your health is maximized"); 
     }
 
 };
-class GroceryStore: public Land { 
+class GroceryStore: public Land 
+{ 
 
-    public: string getDescription() {
-        return (" A grocery store and it will restore your hunger to the max");
+    public: string getDescription() 
+    {
+        return ("a grocery store and it will restore your hunger to the max");
     }
-    string visit(Player & p) {
-        p.hunger = MAX_HUNGER; // maximize hunger from the grocery store
-        return ("Your hunger is stored to max\n"); 
+    string visit(Player & p) 
+    {
+        p.increaseHunger(MAX_HUNGER); // maximize hunger from the grocery store
+        return ("Your hunger is stored to max"); 
     }
 };
-Land* map[MAP_SIZE][MAP_SIZE];
 
-void populateMap(){
+void populateMap(Land* map[MAP_SIZE][MAP_SIZE]){
     for(int i = 0; i < MAP_SIZE; i++){
         for(int j = 0; j < MAP_SIZE; j++){
-            // TODO: Modify this code to add your new land types
             int randomNum = rand() % 9;
             switch(randomNum){
-                case 0: // Forest
+                case 0: 
                     map[i][j] = new Forest;
                     break;
-                case 1: // Lake
+                case 1: 
                     map[i][j] = new Lake;
                     break;
-                case 2: // Lake
+                case 2: 
                     map[i][j] = new HauntedHouse;
                     break;
-                case 3: // Lake
+                case 3: 
                     map[i][j] = new LivesShop;
                     break;
-                case 4: // Lake
+                case 4: 
                     map[i][j] = new GroceryStore;
                     break;
-                case 5: // Lake
+                case 5: 
                     map[i][j] = new IcedLand; 
                     break;
-                case 6: // Lake
+                case 6: 
                     map[i][j] = new Hospital;
+                break;
                 case 7: 
                     map[i][j] = new Farm;
                     break; 
@@ -372,34 +504,55 @@ void populateMap(){
                     map[i][j] = new Camp; 
                     break;
                 default:
-                    cout << "Invalid land type selected" << endl;
+                    cout << "Invalid land type selected\n"; //Will never get there, but to clear compiler warnings.
                     break;
             }
         }
     }
 }
 
+
+// Function to deallocate memory for the map to avoid memory leaks
+void cleanMap(Land* map[MAP_SIZE][MAP_SIZE])
+{
+    for(int i = 0; i < MAP_SIZE; i++)
+    {
+        for(int j = 0; j < MAP_SIZE; j++)
+        {
+            delete map[i][j]; 
+            map[i][j] = nullptr; 
+        }
+    }
+}
+
+
 int main(){
     srand(time(0));
+    Land* map[MAP_SIZE][MAP_SIZE];
+    populateMap(map);
     
-    populateMap();
+    Player player(MAP_SIZE/2, MAP_SIZE/2); //Start in the middle
     
-    Player player(MAP_SIZE/2, MAP_SIZE/2);
+    cout << "You wake up and find yourself lost in the middle of a strange wilderness.\n";
     
-    cout << "You wake up and find yourself lost in the middle of a strange wilderness." << endl;
-    
-    // TODO: Handle boundary conditions (e.g., if index out of bounds north, you index the south-most location)
-    
+
     while(player.isAlive())
     {
-                if (player.x > 9) {
+        //These 2 if else statements handle the rolling back of the player if the player exceeded the max x or y position.
+        if (player.x > MAP_SIZE-1) 
+        {
             player.x=0;
-        } else if (player.x < 0) {
+        } 
+        else if (player.x < 0) 
+        {
             player.x = 9;
         }
-        if (player.y > 9) {
+        if (player.y > 9) 
+        {
             player.y=0;
-        } else if (player.y) {
+        } 
+        else if (player.y<0) 
+        {
             player.y = 9;
         }
         cout << "To the north you see " << map[player.x][player.y - 1]->getDescription() << endl;
@@ -407,7 +560,7 @@ int main(){
         cout << "To the south you see " << map[player.x][player.y + 1]->getDescription() << endl;
         cout << "To the west you see " << map[player.x - 1][player.y]->getDescription() << endl;
         
-        cout << "Which way will you go? Enter N, E, S, or W:" << endl;
+        cout << "Which way will you go? Enter N, E, S, or W:\n";
         char userInput;
         cin >> userInput;
         
@@ -429,6 +582,7 @@ int main(){
                 player.x = player.x - 1;
             break;
             default:
+                cout<<"Wrong input, please enter N,W,E,S\n";
                 userInput = 'x';  
             break;
         }
@@ -442,8 +596,7 @@ int main(){
     }
     }
     
-    cout << "You died." << endl;
-    cout << player.getScore() << endl;
-    
+    cout << "You died.\nYour score is: "<< player.getScore()<< endl;
+    cleanMap(map);
     return 0;
 }
