@@ -58,7 +58,7 @@ int main()
                     if (numberOfPlayers<=0) cout<<"The number of players need to be a positive integer>>>\n";
                     else break;
                 }
-                else if ((numOfPlayersInput == 'x') || (numOfPlayersInput =='X')) break;
+                else if ((numOfPlayersInput == 'x') || (numOfPlayersInput =='X')) exit(0);
                 else cout<<"Wrong input\n";
             }
             Player players[numberOfPlayers];
@@ -69,7 +69,23 @@ int main()
             runGame(map, players, numberOfPlayers); // Pass player by reference
             cleanMap(map);   
         }
-        else if ('2' == input)runDll(); 
+        else if ('2' == input)
+        {
+            doublylinkedlist dll;
+            string dllInput;
+            while (true)
+            {
+                cout<<"Enter the operation you would like to do to the DLL, h for help, or any other key to exit\n";
+                cin>> dllInput;
+                if (dllInput == "h" or dllInput == "H")
+                {
+                    for (int i =1; i<DLL_NUM_OF_CMD; ++i) cout<<dll.getCommandString((dll_cmd_t)i)<<endl;
+                }
+                else if (dllInput == "x" or dllInput == "X") exit(0);
+                else if (stoi(dllInput) > 7) cout << "Wrong command \n";
+                else dll.handleInput(dllInput);
+            }
+        }
     }
 
     return 0;

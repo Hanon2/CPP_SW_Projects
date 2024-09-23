@@ -1,13 +1,100 @@
 #include "doubly.h"
+
+doublylinkedlist::doublylinkedlist()
+{
+    head = nullptr; 
+    tail = nullptr; 
+}
 doublylinkedlist::doublylinkedlist(const doublylinkedlist& rhs)
 { 
     cout << "Copy constructor called!" << endl;
     head = nullptr;
-    for(int i = 0; i < rhs.size(); i++){ //keep copying the data on the right hand side of the = sign
+    for(int i = 0; i < rhs.size(); i++)
+    { //keep copying the data on the right hand side of the = sign
         push(rhs.at(i));
     }
 }
 
+void doublylinkedlist::printHelp() 
+{
+    cout << "List of available commands:\n";
+    for (int cmd = DLL_COPY; cmd < DLL_NUM_OF_CMD; ++cmd) 
+    {
+        cout << getCommandString((dll_cmd_t)cmd) << endl;
+    }
+}
+
+void doublylinkedlist::handleInput(string input)
+{
+    dll_cmd_t cmd = (dll_cmd_t)stoi(input);
+    switch(cmd) 
+    {
+        case DLL_COPY: return;
+        case DLL_PUSH:
+            {
+                int numberToBePusehd; 
+                cout <<"Enter the number to be pushed>>>\n";
+                cin>> numberToBePusehd;
+                this->push(numberToBePusehd);
+            }
+        break;
+        case DLL_SIZE:
+            cout<<"The size of this double linked list is: "<<this->size()<<endl;
+        break;
+        case DLL_POP:
+            {
+                int elementToBePopped = this->at(this->size()-1);
+                this->pop();
+                cout<<"Element: "<<elementToBePopped<<" is no longer in the list\n";
+            }
+        break;
+        case DLL_INSERT: 
+            {
+                int idx, elemntToBeInserted;
+                cout<<"Enter the element to be inserted>>>\n";
+                cin>>elemntToBeInserted;
+                cout<<"Enter the index of the element\n";
+                cin>>idx;
+                if (idx>this->size()) cout<<"The index you entered is more than the size of the list\n";
+                else this->insert(elemntToBeInserted, idx);
+            }
+        break;
+        case DLL_REMOVE: 
+            {
+                int idx;
+                cout<<"Enter the index of the element to be removed\n";
+                cin>>idx;
+                if (idx>this->size()) cout<<"The index you entered is more than the size of the list\n";
+                else this->remove(idx);
+            }
+        break;
+        case DLL_AT:
+            {
+                int idx;
+                cout<<"Enter the of the element you would like to access\n";
+                cin>>idx;
+                if (idx>this->size()) cout<<"The index you entered is more than the size of the list\n";
+                else this->at(idx);
+            }
+        break;
+    }
+}
+
+string doublylinkedlist::getCommandString(dll_cmd_t cmd) 
+{
+    switch(cmd) 
+    {
+        case DLL_COPY: return "1 - Copies the linked list.";
+        case DLL_PUSH: return "2 - Pushes an element to the linked list.";
+        case DLL_SIZE: return "3 - Returns the size of the linked list.";
+        case DLL_POP: return "4 - Pops an element from the linked list.";
+        case DLL_INSERT: return "5 - Inserts an element at a given position.";
+        case DLL_REMOVE: return "6 - Removes an element from a given position.";
+        case DLL_AT: return "7 - Retrieves the element at a given position.";
+        case CMD_HELP: return "h - Displays this help message.";
+        default: return "Unknown command.";
+    }
+}
 void doublylinkedlist::operator=(const doublylinkedlist& rhs)
 {
     cout << "Copy assignment override called!" << endl;
@@ -69,6 +156,8 @@ void doublylinkedlist:: pop()
         tail->next = nullptr; 
     }
 }
+
+
 int doublylinkedlist:: size() const
 {
     node * currentnode = head;
@@ -88,6 +177,8 @@ int doublylinkedlist:: size() const
     return count; 
 
 }
+
+
 void doublylinkedlist::print()
 {
     node* temp = head; 
@@ -108,6 +199,8 @@ void doublylinkedlist::print()
             
     }
 }
+
+
 int& doublylinkedlist::at(int idx) const 
 { 
 node* count = head; 
@@ -119,6 +212,8 @@ int counter=0;
     }
     return count->data; 
 }
+
+
 void doublylinkedlist:: insert(int data , int idx)
 { //use idx vairable as index and keep going until you get to index
     int counter= 0; 
@@ -151,6 +246,8 @@ void doublylinkedlist:: insert(int data , int idx)
     
     
 }
+
+
 void doublylinkedlist:: remove(int pos)
 {
     int counter=0;

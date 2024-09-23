@@ -28,33 +28,51 @@ Key Features:
 #define DOUBLY_H
 #include <iostream>
 using namespace std;
+
+
+typedef enum 
+{
+    DLL_COPY=1, 
+    DLL_PUSH, 
+    DLL_SIZE, 
+    DLL_POP, 
+    DLL_INSERT,
+    DLL_REMOVE, 
+    DLL_AT, 
+    CMD_HELP,
+    DLL_NUM_OF_CMD
+} dll_cmd_t;
+
+
 struct node
 {
     int data;
     node * next; 
     node * prev;
 };
+
+
 class doublylinkedlist
 {
     public: 
-    doublylinkedlist()
-    {
-        head = nullptr; 
-        tail = nullptr; 
-    }
-    doublylinkedlist(const doublylinkedlist& rhs);
-    void operator=(const doublylinkedlist& rhs);
-    ~doublylinkedlist();
-    void push(int data); 
-    void pop();
-    int size() const;
-    void print();
-    int& at (int idx) const; 
-    void insert (int data, int pos);
-    void remove(int pos); 
+
+        doublylinkedlist();
+        void printHelp();
+        string getCommandString(dll_cmd_t cmd);
+        void handleInput(string input);
+        doublylinkedlist(const doublylinkedlist& rhs);
+        void operator=(const doublylinkedlist& rhs);
+        ~doublylinkedlist();
+        void push(int data); 
+        void pop();
+        int size() const;
+        void print();
+        int& at (int idx) const; 
+        void insert (int data, int pos);
+        void remove(int pos); 
     
     private:
-    node* head; 
-    node*tail;
+        node* head; 
+        node*tail;
 };
 #endif
