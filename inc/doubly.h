@@ -39,6 +39,7 @@ typedef enum
     DLL_INSERT,
     DLL_REMOVE, 
     DLL_AT, 
+    DLL_PRINT,
     CMD_HELP,
     DLL_NUM_OF_CMD
 } dll_cmd_t;

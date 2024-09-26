@@ -9,29 +9,6 @@
 #include "doubly.h"
 
 
-void runDll()
-{
-    doublylinkedlist dll;
-    
-    dll.push(1);
-    dll.push(2);
-    dll.push(3);
-    
-    doublylinkedlist dllCopy = dll;
-    
-    dllCopy.push(4);
-    dllCopy.remove(1);
-    dllCopy.remove(0);
-    dllCopy.insert(5, 1);
-    
-    dll.print();
-    dllCopy.print();
-    
-    dll = dllCopy;
-    dll.print();
-}
-
-
 int main()
 {
     char input; 
@@ -82,7 +59,7 @@ int main()
                     for (int i =1; i<DLL_NUM_OF_CMD; ++i) cout<<dll.getCommandString((dll_cmd_t)i)<<endl;
                 }
                 else if (dllInput == "x" or dllInput == "X") exit(0);
-                else if (stoi(dllInput) > 7) cout << "Wrong command \n";
+                else if (stoi(dllInput) > (DLL_NUM_OF_CMD-1)) cout << "Wrong command \n";
                 else dll.handleInput(dllInput);
             }
         }

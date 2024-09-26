@@ -74,7 +74,11 @@ void doublylinkedlist::handleInput(string input)
                 cout<<"Enter the of the element you would like to access\n";
                 cin>>idx;
                 if (idx>this->size()) cout<<"The index you entered is more than the size of the list\n";
-                else this->at(idx);
+                else cout<<this->at(idx)<<endl;
+            }
+        case DLL_PRINT:
+            {
+                this->print();
             }
         break;
     }
@@ -91,6 +95,7 @@ string doublylinkedlist::getCommandString(dll_cmd_t cmd)
         case DLL_INSERT: return "5 - Inserts an element at a given position.";
         case DLL_REMOVE: return "6 - Removes an element from a given position.";
         case DLL_AT: return "7 - Retrieves the element at a given position.";
+        case DLL_PRINT: return "8 - Prints the DLL.";
         case CMD_HELP: return "h - Displays this help message.";
         default: return "Unknown command.";
     }
@@ -144,15 +149,26 @@ void doublylinkedlist::push(int data)
 }
 void doublylinkedlist:: pop()
 { // remove the last element in the object
-    if (head == nullptr)
-    { // checks if there is nothing in the object
-        cout<<"There is nothing to pop"<<endl;
+    if (head == nullptr) 
+    { 
+        // If the list is empty
+        cout << "There is nothing to pop" << endl;
         return;
     }
+    
+    else if (head == tail) 
+    {
+        // If there is only one element in the list
+        delete head;
+        head = nullptr;
+        tail = nullptr;
+        cout << "The last element has been popped" << endl;
+    }
     else 
-    { // if there is more than one element
+    {
+        // If there is more than one element
         tail = tail->prev; 
-        delete tail->next; // delete the element next to tail (last element). 
+        delete tail->next; // Delete the last element
         tail->next = nullptr; 
     }
 }
@@ -220,6 +236,11 @@ void doublylinkedlist:: insert(int data , int idx)
     node* currentnode = head; 
     if (idx==0)
     {
+        if (head == nullptr)
+        {
+            this->push(data);
+            return;
+        }
         node* temp = head; 
         head = new node; 
         head->data = data; 
