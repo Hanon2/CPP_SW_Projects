@@ -16,9 +16,7 @@ int main()
     {
         cout << "This program combines different projects. Choose which program you would like to run or enter x to exit:\n"
          << "1 - Survival Game: A wilderness survival simulation.\n"
-         << "2 - Double Linked List: A data structure project that demonstrates the operations of a doubly linked list.\n"
-         << "3 - File Encryption: A file encryption tool that secures files by applying encryption.>>>\n";
-
+         << "2 - Double Linked List: A data structure project that demonstrates the operations of a doubly linked list.\n";
         cin>>input; 
         if ('1' == input)
         {
